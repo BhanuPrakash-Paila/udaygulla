@@ -1,40 +1,38 @@
 import type { Metadata } from "next";
-import { DM_Sans, Instrument_Serif } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const sans = DM_Sans({
-  variable: "--font-sans",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const serif = Instrument_Serif({
-  variable: "--font-serif",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://atelier-noir.example"),
-  title: {
-    default: "Atelier Noir | Photography & Film",
-    template: "%s | Atelier Noir",
-  },
+  title: "Uday Creative Portfolio",
   description:
-    "Cinematic photography and moving image for people, places, and brands with something to say.",
+    "Professional portfolio for Uday Paila showcasing photography, video editing, projects, and creative skills.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://uday-profile.vercel.app",
+  ),
   openGraph: {
-    title: "Atelier Noir | Photography & Film",
-    description:
-      "Cinematic photography and moving image for people, places, and brands with something to say.",
+    title: "Uday Creative Portfolio",
+    description: "Photography, video editing, and frontend development by Uday Paila.",
     type: "website",
-    images: ["https://images.unsplash.com/photo-1531058020387-3be344556be6?w=1600&q=85"],
   },
-  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable}`}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full bg-transparent text-slate-900">{children}</body>
     </html>
   );
 }

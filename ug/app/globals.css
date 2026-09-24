@@ -1,132 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #161616;
-  --paper: #eeeae2;
-  --muted: #77736d;
-  --line: rgba(22, 22, 22, 0.16);
-  --rust: #b65036;
-  --night: #1c2528;
+  --background: #f9fafb;
+  --foreground: #111827;
+  --accent-indigo: #4f46e5;
+  --accent-teal: #06b6d4;
+  --surface: #ffffff;
+  --muted: #6b7280;
+  color-scheme: light;
 }
 
-.theme-light {
-  --ink: #f1eee7;
-  --paper: #191919;
-  --muted: #aaa49a;
-  --line: rgba(241, 238, 231, 0.2);
-  --night: #0d0d0d;
+:root[data-theme="dark"] {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --accent-indigo: #818cf8;
+  --accent-teal: #2dd4bf;
+  --surface: #0f172a;
+  --muted: #94a3b8;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --font-sans: var(--font-sans);
-  --font-serif: var(--font-serif);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 * {
   box-sizing: border-box;
 }
+
 html {
   scroll-behavior: smooth;
 }
+
 body {
+  min-height: 100vh;
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-sans), sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(6, 182, 212, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(79, 70, 229, 0.12),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 85%, #111827) 100%
+    );
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
-a {
-  color: inherit;
-  text-decoration: none;
-}
+
 button,
 input,
-select,
 textarea {
   font: inherit;
 }
-button {
-  cursor: pointer;
-}
-.serif {
-  font-family: var(--font-serif), Georgia, serif;
-}
-.eyebrow {
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.skip-link {
-  position: absolute;
-  left: 12px;
-  top: -60px;
-  z-index: 50;
-  background: var(--rust);
-  color: white;
-  padding: 12px 16px;
-}
-.skip-link:focus {
-  top: 12px;
-}
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+
+a {
   color: inherit;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
-.theme-toggle i {
-  display: block;
-  width: 28px;
-  height: 14px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  position: relative;
+
+::selection {
+  background: rgba(79, 70, 229, 0.2);
+  color: #111827;
 }
-.theme-toggle i::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  top: 2px;
-  left: 3px;
-  border-radius: 50%;
-  background: currentColor;
-  transition: transform 0.2s ease;
+
+.fade-in {
+  animation: fadeIn 1s ease-out both;
 }
-.theme-light .theme-toggle i::after {
-  transform: translateX(13px);
+
+.fade-in-up {
+  animation: fadeInUp 1s ease-out both;
 }
-.field {
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  padding: 12px 0;
-  color: white;
-  outline: none;
-  font-size: 14px;
-}
-.field::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-.field:focus {
-  border-color: white;
-}
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  background: rgba(10, 10, 10, 0.94);
-  padding: 4rem 1rem;
-}
-@keyframes rise-in {
+
+@keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(18px);
@@ -136,20 +91,14 @@ button {
     transform: translateY(0);
   }
 }
-.reveal {
-  animation: rise-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-.reveal-delay {
-  animation-delay: 0.18s;
-}
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
