@@ -31,7 +31,7 @@ const emptySkill: SkillForm = {
 };
 
 function badgeStyles(category: "editing" | "coding") {
-  return `rounded-full px-4 py-2 text-sm font-semibold transition ${
+  return `block w-full rounded-full px-4 py-2 text-sm font-semibold transition ${
     category === "editing"
       ? "border border-indigo-200 bg-indigo-50 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-100"
       : "border border-teal-200 bg-teal-50 text-teal-700 hover:border-teal-300 hover:bg-teal-100"
@@ -72,13 +72,6 @@ export default function Skills() {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (skill: Skill) => {
-    setEditId(skill.id);
-    setFormState({ name: skill.name, category: skill.category });
-    setErrors({});
-    setIsModalOpen(true);
-  };
-
   const validateForm = () => {
     const nextErrors: Record<string, string> = {};
     if (!formState.name.trim()) nextErrors.name = "Skill name is required.";
@@ -95,19 +88,12 @@ export default function Skills() {
     };
 
     if (editId) {
-      setSkills((current) =>
-        current.map((item) => (item.id === editId ? skill : item)),
-      );
+      setSkills((current) => current.map((item) => (item.id === editId ? skill : item)));
     } else {
       setSkills((current) => [skill, ...current]);
     }
 
     setIsModalOpen(false);
-  };
-
-  const handleDelete = (id: string) => {
-    if (!window.confirm("Delete this skill?")) return;
-    setSkills((current) => current.filter((skill) => skill.id !== id));
   };
 
   const editingSkills = skills.filter((skill) => skill.category === "editing");
@@ -120,9 +106,7 @@ export default function Skills() {
     >
       <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-teal-600">
-            Skills
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-teal-600">Skills</p>
           <h2 className="mt-3 text-3xl font-semibold text-slate-950 sm:text-4xl">
             Manage Skill Badges
           </h2>
@@ -137,8 +121,8 @@ export default function Skills() {
       </div>
 
       <p className="max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-        Add new skills, choose categories, and remove or update the badges that
-        show on your portfolio.
+        Add new skills, choose categories, and remove or update the badges that show on your
+        portfolio.
       </p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -148,9 +132,7 @@ export default function Skills() {
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
                 Editing Tools
               </p>
-              <p className="mt-1 text-sm text-slate-600">
-                Blue badges for creative suites.
-              </p>
+              <p className="mt-1 text-sm text-slate-600">Blue badges for creative suites.</p>
             </div>
             <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-indigo-700">
               {editingSkills.length}
@@ -163,29 +145,9 @@ export default function Skills() {
               editingSkills.map((skill) => (
                 <div
                   key={skill.id}
-                  className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-4 transition hover:border-indigo-200"
+                  className="w-full rounded-3xl border border-slate-200 bg-white p-4 transition hover:border-indigo-200"
                 >
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className={badgeStyles(skill.category)}>
-                      {skill.name}
-                    </span>
-                    <div className="ml-auto flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(skill)}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-white"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(skill.id)}
-                        className="rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                  <span className={badgeStyles(skill.category)}>{skill.name}</span>
                 </div>
               ))
             )}
@@ -198,9 +160,7 @@ export default function Skills() {
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
                 Coding Tools
               </p>
-              <p className="mt-1 text-sm text-slate-600">
-                Green badges for frontend skills.
-              </p>
+              <p className="mt-1 text-sm text-slate-600">Green badges for frontend skills.</p>
             </div>
             <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-teal-700">
               {codingSkills.length}
@@ -213,29 +173,9 @@ export default function Skills() {
               codingSkills.map((skill) => (
                 <div
                   key={skill.id}
-                  className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-4 transition hover:border-teal-200"
+                  className="w-full rounded-3xl border border-slate-200 bg-white p-4 transition hover:border-teal-200"
                 >
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className={badgeStyles(skill.category)}>
-                      {skill.name}
-                    </span>
-                    <div className="ml-auto flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(skill)}
-                        className="rounded-full border border-slate-700 bg-slate-950/90 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:bg-slate-800"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(skill.id)}
-                        className="rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/20"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                  <span className={badgeStyles(skill.category)}>{skill.name}</span>
                 </div>
               ))
             )}
@@ -284,9 +224,7 @@ export default function Skills() {
                   }
                   className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
                 />
-                {errors.name && (
-                  <p className="mt-2 text-sm text-rose-600">{errors.name}</p>
-                )}
+                {errors.name && <p className="mt-2 text-sm text-rose-600">{errors.name}</p>}
               </div>
               <div>
                 <label
