@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mongoose": "^8.24.4",
+    "nodemailer": "^10.0.10",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2"
+  }
+}
