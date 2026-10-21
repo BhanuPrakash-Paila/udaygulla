@@ -18,6 +18,19 @@ export default function Home() {
         <Skills />
         <Contact />
       </main>
+      <footer className="border-t border-white/15 px-6 py-7 text-center text-sm leading-6 text-white/75 sm:py-8">
+        <p>
+          © 2026 Uday Gulla. All rights reserved. Designed &amp; developed with{" "}
+          <span
+            aria-label="love"
+            className="text-(--portfolio-mauve)"
+            role="img"
+          >
+            ♥
+          </span>{" "}
+          by Bhanu Prakash.
+        </p>
+      </footer>
     </div>
   );
 }
