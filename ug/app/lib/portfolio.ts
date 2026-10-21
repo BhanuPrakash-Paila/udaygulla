@@ -1,5 +1,12 @@
 export type ProjectCategory =
-  "wedding" | "event" | "baby" | "personal" | "couple" | "video" | "promo" | "insta";
+  | "wedding"
+  | "event"
+  | "baby"
+  | "personal"
+  | "couple"
+  | "video"
+  | "promo"
+  | "insta";
 
 export type VideoClip = {
   title: string;
@@ -19,6 +26,20 @@ export type Project = {
 };
 
 export const STORAGE_KEY_PROJECTS = "portfolio_projects";
+
+const previewProjectIds = new Set([
+  "wedding-album-highlights",
+  "event-coverage-showcase",
+  "baby-portrait-session",
+  "personal-style-shoot",
+  "couple-portrait-story",
+  "promo-campaign-showcase",
+  "insta-viral-clips",
+]);
+
+export function isPreviewProject(project: Pick<Project, "id" | "image">): boolean {
+  return previewProjectIds.has(project.id) && project.image.includes("images.unsplash.com");
+}
 
 export const serviceOfferings = [
   "Wedding photography",
@@ -86,8 +107,7 @@ export const serviceCategories: ServiceCategory[] = [
   {
     id: "promo",
     title: "Promotional Photos",
-    description:
-      "Marketing-ready visuals for brands, campaigns, and social media launches.",
+    description: "Marketing-ready visuals for brands, campaigns, and social media launches.",
     images: [
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1000&q=80",
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80",
@@ -189,8 +209,7 @@ export const defaultProjects: Project[] = [
     id: "couple-portrait-story",
     slug: "couple-portrait-story",
     title: "Couple Portrait Story",
-    description:
-      "Romantic couple photography with cinematic portraits and soft-motion highlights.",
+    description: "Romantic couple photography with cinematic portraits and soft-motion highlights.",
     image:
       "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=1000&q=80",
     link: "#contact",
@@ -233,8 +252,7 @@ export const defaultProjects: Project[] = [
     id: "insta-viral-clips",
     slug: "insta-viral-clips",
     title: "Insta Viral Clips",
-    description:
-      "High-energy reels crafted for engagement, shares, and viral reach on Instagram.",
+    description: "High-energy reels crafted for engagement, shares, and viral reach on Instagram.",
     image:
       "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1000&q=80",
     link: "https://www.instagram.com/_chandu4u/reels/?hl=en",

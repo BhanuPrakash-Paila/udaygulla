@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const navItems = [
@@ -10,6 +11,8 @@ const navItems = [
   { label: "Skills", id: "skills" },
   { label: "Contact", id: "contact" },
 ];
+
+const DEFAULT_PROFILE = "/uday-profile.webp";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -32,20 +35,29 @@ export default function Header() {
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-900/70 bg-slate-950/95 backdrop-blur-xl shadow-2xl shadow-slate-950/25">
+    <header className="site-header fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl shadow-2xl shadow-[#29232b]/25">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 lg:px-8">
         <div className="flex items-center gap-3 text-lg font-semibold tracking-tight text-white">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-300 shadow-lg shadow-sky-500/10">
-            UD
+          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border border-white/25 shadow-lg shadow-indigo-500/10">
+            <Image
+              src={DEFAULT_PROFILE}
+              alt=""
+              width={88}
+              height={88}
+              sizes="44px"
+              className="h-full w-full object-cover object-[50%_35%]"
+            />
           </div>
           <span>Uday Portfolio</span>
         </div>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex">
+        <nav className="hidden items-center gap-6 text-sm font-medium text-[#e8dce3] md:flex">
           {navItems.map((item) => (
             <a
               key={item.id}
@@ -53,7 +65,7 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
               className={`transition ${
                 activeSection === item.id
-                  ? "text-white underline decoration-sky-400/50 underline-offset-8"
+                  ? "text-white underline decoration-[#c7a9b8] underline-offset-8"
                   : "hover:text-white"
               }`}
             >
@@ -90,9 +102,9 @@ export default function Header() {
       </div>
 
       <div
-        className={`${menuOpen ? "block" : "hidden"} border-t border-slate-900/70 bg-slate-950/95 md:hidden`}
+        className={`${menuOpen ? "block" : "hidden"} border-t border-white/10 bg-[#29232b]/95 md:hidden`}
       >
-        <nav className="space-y-1 px-6 py-4 text-sm font-medium text-slate-300">
+        <nav className="space-y-1 px-6 py-4 text-sm font-medium text-[#e8dce3]">
           {navItems.map((item) => (
             <a
               key={item.id}
@@ -100,8 +112,8 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
               className={`block rounded-3xl px-4 py-3 transition ${
                 activeSection === item.id
-                  ? "bg-slate-900 text-white"
-                  : "hover:bg-slate-900/80 hover:text-white"
+                  ? "bg-white/10 text-white"
+                  : "hover:bg-white/5 hover:text-white"
               }`}
             >
               {item.label}

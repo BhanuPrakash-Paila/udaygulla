@@ -2,19 +2,20 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   STORAGE_KEY_PROJECTS,
   getProjectBySlug,
   getProjectCategoryLabel,
   getProjectGalleryTitle,
+  isPreviewProject,
   type Project,
 } from "../../lib/portfolio";
 
 type Props = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 type GalleryMedia = {
@@ -26,6 +27,7 @@ type GalleryMedia = {
 };
 
 export default function ProjectDetailPage({ params }: Props) {
+  const { slug } = use(params);
   const [project, setProject] = useState<Project | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<GalleryMedia | null>(null);
 
@@ -35,7 +37,7 @@ export default function ProjectDetailPage({ params }: Props) {
       if (stored) {
         try {
           const parsed = JSON.parse(stored) as Project[];
-          const active = parsed.find((item) => item.slug === params.slug);
+          const active = parsed.find((item) => item.slug === slug);
           if (active) {
             setProject(active);
             return;
@@ -45,11 +47,11 @@ export default function ProjectDetailPage({ params }: Props) {
         }
       }
 
-      setProject(getProjectBySlug(params.slug));
+      setProject(getProjectBySlug(slug));
     });
 
     return () => window.clearTimeout(timeoutId);
-  }, [params.slug]);
+  }, [slug]);
 
   if (!project) {
     return (
@@ -64,8 +66,8 @@ export default function ProjectDetailPage({ params }: Props) {
           <div className="mt-20 rounded-[2rem] border border-slate-200 bg-white/80 p-10 text-slate-700 shadow-[0_20px_60px_-30px_rgba(17,24,39,0.2)] backdrop-blur-xl">
             <h1 className="text-3xl font-semibold text-slate-950">Project not found</h1>
             <p className="mt-4 text-slate-600">
-              This project page is not available yet. Return to the portfolio and choose a
-              featured project.
+              This project page is not available yet. Return to the portfolio and choose a featured
+              project.
             </p>
           </div>
         </div>
@@ -74,6 +76,7 @@ export default function ProjectDetailPage({ params }: Props) {
   }
 
   const galleryTitle = getProjectGalleryTitle(project.category);
+  const isPreview = isPreviewProject(project);
   const galleryItems: GalleryMedia[] = [
     ...project.gallery.map((image, index) => ({
       type: "image" as const,
@@ -81,12 +84,14 @@ export default function ProjectDetailPage({ params }: Props) {
       src: image,
       description: "Tap to view the full image preview.",
     })),
-    ...project.videoClips.map((clip) => ({
-      type: "video" as const,
-      title: clip.title,
-      url: clip.url,
-      description: "Tap to open the video link in a new tab.",
-    })),
+    ...project.videoClips
+      .filter(() => !isPreview)
+      .map((clip) => ({
+        type: "video" as const,
+        title: clip.title,
+        url: clip.url,
+        description: "Tap to open the video link in a new tab.",
+      })),
   ];
 
   return (
@@ -102,24 +107,26 @@ export default function ProjectDetailPage({ params }: Props) {
         <header className="mt-10 rounded-[2rem] border border-slate-200 bg-white/80 p-8 shadow-[0_20px_60px_-30px_rgba(17,24,39,0.2)] backdrop-blur-xl sm:p-10">
           <div className="space-y-4">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">
-              Album Gallery
+              {isPreview ? "Sample project preview" : "Project gallery"}
             </p>
-            <h1 className="text-4xl font-semibold text-slate-950 sm:text-5xl">
-              {project.title}
-            </h1>
+            <h1 className="text-4xl font-semibold text-slate-950 sm:text-5xl">{project.title}</h1>
             <p className="max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
-              {project.description}
+              {isPreview
+                ? "Temporary layout preview. Replace this image, description, and gallery with verified project work before publishing."
+                : project.description}
             </p>
             <div className="flex flex-wrap gap-3 pt-4">
               <a
-                href={project.link}
-                target="_blank"
-                rel="noreferrer"
+                href={isPreview ? "/#contact" : project.link}
+                target={isPreview || project.link.startsWith("#") ? undefined : "_blank"}
+                rel={isPreview || project.link.startsWith("#") ? undefined : "noreferrer"}
                 className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
               >
-                {project.category === "insta"
-                  ? "Open Instagram Reels"
-                  : "View Full Project"}
+                {isPreview
+                  ? "Discuss a similar project"
+                  : project.category === "insta"
+                    ? "Open Instagram Reels"
+                    : "View Full Project"}
               </a>
               <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
                 Album Type: {getProjectCategoryLabel(project.category)}
@@ -136,9 +143,7 @@ export default function ProjectDetailPage({ params }: Props) {
                   <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">
                     Media Gallery
                   </p>
-                  <h2 className="mt-2 text-3xl font-semibold text-slate-950">
-                    {galleryTitle}
-                  </h2>
+                  <h2 className="mt-2 text-3xl font-semibold text-slate-950">{galleryTitle}</h2>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">
                   {galleryItems.length} items
@@ -181,46 +186,44 @@ export default function ProjectDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="space-y-4 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
-                    Video Clips
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Event-specific video highlights to complement your gallery.
-                  </p>
+            {!isPreview && project.videoClips.length > 0 && (
+              <div className="space-y-4 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
+                      Video Clips
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Event-specific video highlights to complement your gallery.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-teal-700">
+                    {project.videoClips.length} Clips
+                  </span>
                 </div>
-                <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-teal-700">
-                  {project.videoClips.length} Clips
-                </span>
-              </div>
-              <div className="space-y-4">
-                {project.videoClips.map((clip) => (
-                  <a
-                    key={clip.title}
-                    href={clip.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block rounded-3xl border border-slate-200 bg-white px-5 py-4 text-slate-900 transition hover:border-indigo-200 hover:bg-slate-50"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">
-                          {clip.title}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-600">
-                          Open clip in a new tab.
-                        </p>
+                <div className="space-y-4">
+                  {project.videoClips.map((clip) => (
+                    <a
+                      key={clip.title}
+                      href={clip.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block rounded-3xl border border-slate-200 bg-white px-5 py-4 text-slate-900 transition hover:border-indigo-200 hover:bg-slate-50"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">{clip.title}</p>
+                          <p className="mt-1 text-sm text-slate-600">Open clip in a new tab.</p>
+                        </div>
+                        <span className="rounded-full bg-indigo-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
+                          Watch
+                        </span>
                       </div>
-                      <span className="rounded-full bg-indigo-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-indigo-700">
-                        Watch
-                      </span>
-                    </div>
-                  </a>
-                ))}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <aside className="space-y-6 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
@@ -236,14 +239,15 @@ export default function ProjectDetailPage({ params }: Props) {
                   Gallery count: {project.gallery.length}
                 </p>
                 <p className="rounded-3xl border border-slate-200 bg-white px-4 py-3">
-                  Video clips: {project.videoClips.length}
+                  Video clips: {isPreview ? "Preview data" : project.videoClips.length}
                 </p>
               </div>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-white p-5 text-slate-600">
               <p className="text-sm leading-7">
-                Each portfolio item now opens with a polished gallery experience, allowing
-                you to preview visuals and jump directly to the relevant video link.
+                {isPreview
+                  ? "This sample project uses temporary stock imagery and example copy. Replace it with your own photographs, film, and project details."
+                  : "Explore the selected project imagery and available film details."}
               </p>
             </div>
           </aside>
@@ -287,9 +291,7 @@ export default function ProjectDetailPage({ params }: Props) {
                     {selectedMedia.title}
                   </h3>
                 </div>
-                <p className="text-sm leading-7 text-slate-600">
-                  {selectedMedia.description}
-                </p>
+                <p className="text-sm leading-7 text-slate-600">{selectedMedia.description}</p>
                 {selectedMedia.type === "video" && selectedMedia.url ? (
                   <a
                     href={selectedMedia.url}

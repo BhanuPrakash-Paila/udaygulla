@@ -1,273 +1,180 @@
-﻿"use client";
+﻿const skillCategories = [
+  {
+    id: "photography",
+    title: "Photography",
+    description: "Still images shaped around people, place, and light.",
+    accent: "bg-rose-500",
+    skills: [
+      "Wedding & Engagement Photography",
+      "Candid Photography",
+      "Portrait & Lifestyle Photography",
+      "Event Photography",
+      "Corporate Event Photography",
+      "Product & Brand Photography",
+      "Travel & Street Photography",
+      "Lighting & Composition",
+      "Visual Storytelling",
+    ],
+  },
+  {
+    id: "videography",
+    title: "Videography & Event Coverage",
+    description: "Planned coverage for celebrations, events, and brand stories.",
+    accent: "bg-amber-500",
+    skills: [
+      "Wedding Films & Highlight Videos",
+      "Event Videography",
+      "Birthday & Private Event Coverage",
+      "Corporate Event Coverage",
+      "Brand Campaign Videos",
+      "Behind-the-Scenes Filming",
+      "Camera & Gimbal Operation",
+      "Shot Planning & Coordination",
+    ],
+  },
+  {
+    id: "editing",
+    title: "Photo & Video Editing",
+    description: "Finishing work that brings photographs and footage together.",
+    accent: "bg-teal-600",
+    skills: [
+      "Photo Retouching & Enhancement",
+      "Color Correction",
+      "Color Grading",
+      "Cinematic Video Editing",
+      "Wedding Highlight Editing",
+      "Event Recap Videos",
+      "Audio Synchronization & Sound Design",
+      "Photo Album Design",
+    ],
+  },
+  {
+    id: "writing",
+    title: "Content Writing & Copywriting",
+    description: "Clear, audience-aware writing for digital channels.",
+    accent: "bg-indigo-600",
+    skills: [
+      "Social Media Captions",
+      "Blog & Article Writing",
+      "SEO Content Writing",
+      "Video Scriptwriting",
+      "Creative Hooks",
+      "Advertising & Promotional Copy",
+      "Brand Storytelling",
+      "Product Descriptions",
+      "YouTube Titles & Descriptions",
+    ],
+  },
+  {
+    id: "social-content",
+    title: "Social Media & Brand Content",
+    description: "Short-form and campaign assets with a consistent visual voice.",
+    accent: "bg-sky-600",
+    skills: [
+      "Instagram Reels & YouTube Shorts",
+      "Social Media Content Creation",
+      "Product Launch Content",
+      "Promotional Videos",
+      "Social Media Campaign Content",
+      "Thumbnail & Post Design",
+      "Content Calendar Planning",
+      "Brand Visual Consistency",
+    ],
+  },
+  {
+    id: "creative-professional",
+    title: "Creative & Professional Skills",
+    description: "Thoughtful collaboration from first idea through delivery.",
+    accent: "bg-lime-600",
+    skills: [
+      "Creative Direction",
+      "Concept Development",
+      "Storyboarding & Shot Planning",
+      "Client Communication",
+      "On-Location Adaptability",
+      "Project Management",
+      "Deadline Management",
+      "Attention to Detail",
+      "Feedback & Revision Management",
+    ],
+  },
+] as const;
 
-import { useEffect, useState } from "react";
-
-type Skill = {
-  id: string;
-  name: string;
-  category: "editing" | "coding";
-};
-
-const STORAGE_KEY = "portfolio_skills";
-
-const defaultSkills: Skill[] = [
-  { id: "1", name: "Photoshop", category: "editing" },
-  { id: "2", name: "Lightroom", category: "editing" },
-  { id: "3", name: "Premiere Pro", category: "editing" },
-  { id: "4", name: "After Effects", category: "editing" },
-  { id: "5", name: "React", category: "coding" },
-  { id: "6", name: "Next.js", category: "coding" },
-  { id: "7", name: "GitHub", category: "coding" },
+const softwareTools = [
+  "Adobe Lightroom",
+  "Adobe Photoshop",
+  "Adobe Premiere Pro",
+  "Adobe After Effects",
 ];
 
-type SkillForm = {
-  name: string;
-  category: Skill["category"];
-};
-
-const emptySkill: SkillForm = {
-  name: "",
-  category: "editing",
-};
-
-function badgeStyles(category: "editing" | "coding") {
-  return `block w-full rounded-full px-4 py-2 text-sm font-semibold transition ${
-    category === "editing"
-      ? "border border-indigo-200 bg-indigo-50 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-100"
-      : "border border-teal-200 bg-teal-50 text-teal-700 hover:border-teal-300 hover:bg-teal-100"
-  }`;
-}
-
 export default function Skills() {
-  const [skills, setSkills] = useState<Skill[]>(defaultSkills);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formState, setFormState] = useState<SkillForm>({ ...emptySkill });
-  const [editId, setEditId] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        try {
-          setSkills(JSON.parse(stored));
-        } catch {
-          // ignore invalid JSON
-        }
-      }
-    });
-
-    return () => window.clearTimeout(timeoutId);
-  }, []);
-
-  useEffect(() => {
-    if (!skills.length) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(skills));
-  }, [skills]);
-
-  const openAddModal = () => {
-    setEditId(null);
-    setFormState({ ...emptySkill });
-    setErrors({});
-    setIsModalOpen(true);
-  };
-
-  const validateForm = () => {
-    const nextErrors: Record<string, string> = {};
-    if (!formState.name.trim()) nextErrors.name = "Skill name is required.";
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!validateForm()) return;
-    const skill: Skill = {
-      id: editId ?? Date.now().toString(),
-      name: formState.name.trim(),
-      category: formState.category,
-    };
-
-    if (editId) {
-      setSkills((current) => current.map((item) => (item.id === editId ? skill : item)));
-    } else {
-      setSkills((current) => [skill, ...current]);
-    }
-
-    setIsModalOpen(false);
-  };
-
-  const editingSkills = skills.filter((skill) => skill.category === "editing");
-  const codingSkills = skills.filter((skill) => skill.category === "coding");
-
   return (
-    <section
-      id="skills"
-      className="mt-20 rounded-[2rem] border border-slate-200/80 bg-white/80 p-8 shadow-[0_20px_60px_-30px_rgba(17,24,39,0.2)] backdrop-blur-xl sm:p-10"
-    >
-      <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-teal-600">Skills</p>
-          <h2 className="mt-3 text-3xl font-semibold text-slate-950 sm:text-4xl">
-            Manage Skill Badges
-          </h2>
-        </div>
-        <button
-          type="button"
-          onClick={openAddModal}
-          className="inline-flex items-center justify-center rounded-full bg-teal-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-500"
-        >
-          Add Skill
-        </button>
+    <section id="skills" className="mt-20 scroll-mt-28">
+      <div className="mb-8 max-w-3xl sm:mb-10">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-teal-300">Skills</p>
+        <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+          Creative craft, from capture to story
+        </h2>
+        <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">
+          A versatile creative practice spanning photography, video production, editing, and brand
+          storytelling.
+        </p>
       </div>
 
-      <p className="max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-        Add new skills, choose categories, and remove or update the badges that show on your
-        portfolio.
-      </p>
-
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <div className="space-y-4 rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Editing Tools
-              </p>
-              <p className="mt-1 text-sm text-slate-600">Blue badges for creative suites.</p>
-            </div>
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-indigo-700">
-              {editingSkills.length}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {editingSkills.length === 0 ? (
-              <p className="text-sm text-slate-600">No editing skills yet.</p>
-            ) : (
-              editingSkills.map((skill) => (
-                <div
-                  key={skill.id}
-                  className="w-full rounded-3xl border border-slate-200 bg-white p-4 transition hover:border-indigo-200"
-                >
-                  <span className={badgeStyles(skill.category)}>{skill.name}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-4 rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
-                Coding Tools
-              </p>
-              <p className="mt-1 text-sm text-slate-600">Green badges for frontend skills.</p>
-            </div>
-            <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-teal-700">
-              {codingSkills.length}
-            </span>
-          </div>
-          <div className="space-y-3">
-            {codingSkills.length === 0 ? (
-              <p className="text-sm text-slate-600">No coding skills yet.</p>
-            ) : (
-              codingSkills.map((skill) => (
-                <div
-                  key={skill.id}
-                  className="w-full rounded-3xl border border-slate-200 bg-white p-4 transition hover:border-teal-200"
-                >
-                  <span className={badgeStyles(skill.category)}>{skill.name}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-200/70">
-            <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {skillCategories.map((category, index) => (
+          <article
+            key={category.id}
+            className="h-full rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_20px_50px_-35px_rgba(15,23,42,0.7)] sm:p-6"
+          >
+            <div className="flex items-start gap-3">
+              <span
+                aria-hidden="true"
+                className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${category.accent}`}
+              />
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-teal-600">
-                  Skill Settings
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {String(index + 1).padStart(2, "0")}
                 </p>
-                <h3 className="mt-2 text-2xl font-semibold text-slate-950">
-                  {editId ? "Edit Skill" : "Add Skill"}
+                <h3 className="mt-1 text-lg font-semibold leading-snug text-slate-950">
+                  {category.title}
                 </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 transition hover:border-teal-300 hover:bg-white"
-              >
-                Close
-              </button>
-            </div>
-            <div className="space-y-5">
-              <div>
-                <label
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                  htmlFor="skill-name"
-                >
-                  Skill name
-                </label>
-                <input
-                  id="skill-name"
-                  type="text"
-                  value={formState.name}
-                  onChange={(event) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      name: event.target.value,
-                    }))
-                  }
-                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                />
-                {errors.name && <p className="mt-2 text-sm text-rose-600">{errors.name}</p>}
-              </div>
-              <div>
-                <label
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                  htmlFor="skill-category"
-                >
-                  Category
-                </label>
-                <select
-                  id="skill-category"
-                  value={formState.category}
-                  onChange={(event) =>
-                    setFormState((prev) => ({
-                      ...prev,
-                      category: event.target.value as "editing" | "coding",
-                    }))
-                  }
-                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-                >
-                  <option value="editing">Editing</option>
-                  <option value="coding">Coding</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm text-slate-700 transition hover:border-teal-300 hover:bg-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className="inline-flex items-center justify-center rounded-full bg-teal-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-500"
-                >
-                  Save Skill
-                </button>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{category.description}</p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+            <ul className="mt-5 space-y-2.5 border-t border-slate-100 pt-4">
+              {category.skills.map((skill) => (
+                <li
+                  key={skill}
+                  className="flex items-start gap-2.5 text-sm leading-6 text-slate-700"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`mt-[0.65rem] h-1 w-1 shrink-0 rounded-full ${category.accent}`}
+                  />
+                  <span>{skill}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-8 border-t border-slate-800 pt-6">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-300">
+          Software
+        </h3>
+        <ul className="mt-4 flex flex-wrap gap-2.5" aria-label="Creative software tools">
+          {softwareTools.map((tool) => (
+            <li
+              key={tool}
+              className="rounded-full border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm text-slate-200"
+            >
+              {tool}
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

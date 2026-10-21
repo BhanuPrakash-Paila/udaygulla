@@ -1,12 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
-  --accent-indigo: #4f46e5;
+  --background: #f8f5f2;
+  --foreground: #29232b;
+  --accent-indigo: #6551d8;
   --accent-teal: #06b6d4;
+  --portfolio-violet: #6551d8;
+  --portfolio-coral: #c78979;
+  --portfolio-pink: #f0e3e8;
+  --portfolio-lavender: #e8dce3;
+  --portfolio-mauve: #c7a9b8;
+  --portfolio-warm: #f8f5f2;
+  --portfolio-plum: #29232b;
   --surface: #ffffff;
-  --muted: #6b7280;
+  --muted: #746a74;
   color-scheme: light;
 }
 
@@ -38,24 +45,97 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(6, 182, 212, 0.16),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at top right,
-      rgba(79, 70, 229, 0.12),
-      transparent 32%
-    ),
-    linear-gradient(
-      135deg,
-      var(--background) 0%,
-      color-mix(in srgb, var(--background) 85%, #111827) 100%
-    );
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.portfolio-canvas {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 9% 4%, rgb(240 227 232 / 76%), transparent 34rem),
+    radial-gradient(ellipse at 90% 3%, rgb(199 169 184 / 24%), transparent 38rem),
+    linear-gradient(
+      180deg,
+      var(--portfolio-warm) 0%,
+      var(--portfolio-warm) 20%,
+      #efe5e8 43%,
+      #d7c8d0 64%,
+      var(--portfolio-plum) 82%,
+      #211e26 100%
+    );
+}
+
+.site-header {
+  border-color: rgb(255 255 255 / 10%);
+  background-color: rgb(41 35 43 / 96%);
+}
+
+.hero-surface {
+  background:
+    radial-gradient(ellipse at 80% 44%, rgb(199 169 184 / 24%), transparent 38%),
+    linear-gradient(120deg, var(--portfolio-warm) 0%, #fffdfc 43%, var(--portfolio-pink) 100%);
+}
+
+.hero-portrait-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgb(199 169 184 / 30%),
+    rgb(101 81 216 / 12%) 46%,
+    transparent 74%
+  );
+  filter: blur(22px);
+}
+
+.hero-portrait-frame {
+  background: linear-gradient(
+    145deg,
+    rgb(199 169 184 / 76%),
+    rgb(101 81 216 / 54%) 52%,
+    rgb(240 227 232 / 92%)
+  );
+}
+
+.hero-copy-item,
+.hero-portrait-reveal {
+  animation: heroCopyIn 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-type-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.86em;
+  margin-left: 0.12em;
+  background: var(--portfolio-violet);
+  vertical-align: -0.08em;
+  animation: heroCursorBlink 1s steps(2, start) infinite;
+}
+
+.scroll-reveal-visible {
+  animation: sectionReveal 620ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms) both;
+}
+
+.service-card:focus-within,
+.project-card:focus-within {
+  border-color: var(--portfolio-violet);
+}
+
+.contact-field {
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.contact-field:focus {
+  border-color: var(--portfolio-violet);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgb(101 81 216 / 16%);
+}
+
+.contact-field[aria-invalid="true"] {
+  border-color: #b42318;
 }
 
 button,
@@ -81,6 +161,14 @@ a {
   animation: fadeInUp 1s ease-out both;
 }
 
+.about-reveal {
+  animation: aboutRise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-image-reveal {
+  animation: heroImageReveal 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -100,5 +188,70 @@ a {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes aboutRise {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroImageReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroCopyIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroCursorBlink {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes sectionReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .fade-in-up,
+  .about-reveal,
+  .hero-image-reveal,
+  .hero-copy-item,
+  .hero-portrait-reveal,
+  .scroll-reveal-visible {
+    animation: none;
+  }
+
+  .hero-type-cursor {
+    visibility: hidden;
+    animation: none;
   }
 }

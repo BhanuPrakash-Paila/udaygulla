@@ -1,26 +1,88 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import ScrollReveal from "@/components/ScrollReveal";
+
+type InquiryField = "name" | "email" | "service" | "message";
+type InquiryErrors = Partial<Record<InquiryField, string>>;
+
+const serviceOptions = [
+  "Photography",
+  "Wedding & Engagement",
+  "Birthday & Private Events",
+  "Corporate Events",
+  "Videography & Films",
+  "Photo & Video Editing",
+  "Brand & Product Shoots",
+  "Social Media Content",
+  "Other",
+];
+
+const budgetOptions = [
+  "Not sure yet",
+  "Under ₹5,000",
+  "₹5,000–₹15,000",
+  "₹15,000–₹30,000",
+  "₹30,000+",
+];
 
 export default function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errors, setErrors] = useState<InquiryErrors>({});
+
+  function clearError(field: InquiryField) {
+    setErrors((current) => ({ ...current, [field]: undefined }));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("sending");
+    if (status === "sending") return;
 
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
+    const name = String(data.name ?? "").trim();
+    const email = String(data.email ?? "").trim();
+    const service = String(data.service ?? "").trim();
+    const message = String(data.message ?? "").trim();
+    const nextErrors: InquiryErrors = {};
+
+    if (name.length < 2) nextErrors.name = "Please enter your full name.";
+    if (!email) {
+      nextErrors.email = "Please enter your email address.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      nextErrors.email = "Please enter a valid email address.";
+    }
+    if (!service) nextErrors.service = "Choose the service you are enquiring about.";
+    if (message.length < 10) nextErrors.message = "Please share a little more about your project.";
+
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      const firstInvalidField = Object.keys(nextErrors)[0];
+      form.querySelector<HTMLElement>(`[name="${firstInvalidField}"]`)?.focus();
+      return;
+    }
+
+    setStatus("sending");
 
     try {
       const response = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          name,
+          email,
+          service,
+          message,
+          phone: String(data.phone ?? "").trim() || undefined,
+          eventDate: String(data.eventDate ?? "").trim() || undefined,
+          budget: String(data.budget ?? "").trim() || undefined,
+        }),
       });
 
       if (!response.ok) throw new Error("Request failed");
       form.reset();
+      setErrors({});
       setStatus("success");
     } catch {
       setStatus("error");
@@ -28,24 +90,21 @@ export default function Contact() {
   }
 
   return (
-    <section
-      id="contact"
-      className="mt-20 rounded-[2rem] border border-slate-200/80 bg-white/80 p-8 shadow-[0_20px_60px_-30px_rgba(17,24,39,0.2)] backdrop-blur-xl sm:p-10"
-    >
-      <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="space-y-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">
-            Contact
+    <section id="contact" className="mt-24 scroll-mt-28">
+      <div className="grid gap-7 rounded-3xl border border-[#d8cbd2] bg-[#f8f5f2]/95 p-5 shadow-[0_28px_70px_-52px_rgba(41,35,43,0.64)] sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:p-10">
+        <ScrollReveal className="space-y-6 lg:py-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--portfolio-violet) sm:text-sm">
+            Have a project in mind?
           </p>
-          <h2 className="text-3xl font-semibold text-slate-950 sm:text-4xl">
-            Let&apos;s create something unforgettable.
+          <h2 className="max-w-lg text-3xl font-semibold leading-tight text-(--portfolio-plum) sm:text-4xl lg:text-5xl">
+            Let&apos;s create something worth remembering.
           </h2>
-          <p className="max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-            Reach out with a few details about your project and I&apos;ll respond with a
-            tailored plan for photography, video editing, or frontend development.
+          <p className="max-w-xl text-sm leading-7 text-[#665d66] sm:text-base">
+            Whether it&apos;s a special occasion, a creative shoot, or a brand idea, tell me what
+            you&apos;re imagining. Let&apos;s bring it to life.
           </p>
 
-          <div className="grid gap-4 grid-cols-1 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 sm:grid-cols-2">
             {[
               {
                 label: "Instagram",
@@ -123,81 +182,228 @@ export default function Contact() {
                 href={url}
                 target={label === "Call" ? "_self" : "_blank"}
                 rel={label === "Call" ? undefined : "noreferrer"}
-                className="inline-flex items-center justify-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-700 transition hover:border-indigo-300 hover:bg-white hover:text-slate-900"
+                className="inline-flex min-h-14 items-center gap-3 rounded-xl border border-[#e1d4da] bg-white/70 px-4 py-3 text-[#514953] transition duration-200 hover:-translate-y-0.5 hover:border-[#c7a9b8] hover:bg-white hover:text-(--portfolio-plum) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--portfolio-violet) motion-reduce:transform-none"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f0e3e8] text-(--portfolio-violet)">
                   {icon}
                 </span>
                 <span>{label}</span>
               </a>
             ))}
           </div>
-        </div>
+          <p className="border-t border-[#d8cbd2] pt-5 text-sm text-[#746a74]">
+            Every great project starts with a conversation.
+          </p>
+        </ScrollReveal>
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-[0_20px_60px_-30px_rgba(17,24,39,0.2)]"
+          noValidate
+          className="rounded-2xl border border-[#e1d4da] bg-white p-5 shadow-[0_24px_60px_-48px_rgba(41,35,43,0.56)] sm:p-7"
         >
-          <div className="hidden" aria-hidden="true">
-            <label htmlFor="website">Website</label>
-            <input id="website" name="website" tabIndex={-1} autoComplete="off" />
-          </div>
-          <div>
-            <label
-              className="mb-2 block text-sm font-medium text-slate-700"
-              htmlFor="name"
+          <ScrollReveal className="space-y-5">
+            <div className="mb-1">
+              <h3 className="text-xl font-semibold text-(--portfolio-plum)">
+                Tell me about your project.
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#746a74]">
+                Share a few details and let&apos;s start planning something meaningful.
+              </p>
+            </div>
+            <div className="hidden" aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-[#514953]" htmlFor="name">
+                  Full name <span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  maxLength={80}
+                  placeholder="Your name"
+                  aria-invalid={Boolean(errors.name)}
+                  aria-describedby={errors.name ? "name-error" : undefined}
+                  onChange={() => clearError("name")}
+                  className="contact-field w-full rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm text-(--portfolio-plum) placeholder:text-[#968b94]"
+                />
+                {errors.name && (
+                  <p id="name-error" className="mt-1.5 text-xs text-rose-700">
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-[#514953]" htmlFor="email">
+                  Email address <span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  maxLength={254}
+                  placeholder="you@example.com"
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? "email-error" : undefined}
+                  onChange={() => clearError("email")}
+                  className="contact-field w-full rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm text-(--portfolio-plum) placeholder:text-[#968b94]"
+                />
+                {errors.email && (
+                  <p id="email-error" className="mt-1.5 text-xs text-rose-700">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-[#514953]" htmlFor="phone">
+                  Phone or WhatsApp <span className="font-normal text-[#857a84]">(optional)</span>
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  maxLength={40}
+                  placeholder="Your number"
+                  className="contact-field w-full rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm text-(--portfolio-plum) placeholder:text-[#968b94]"
+                />
+              </div>
+
+              <div>
+                <label
+                  className="mb-2 block text-sm font-medium text-[#514953]"
+                  htmlFor="eventDate"
+                >
+                  Event or project date{" "}
+                  <span className="font-normal text-[#857a84]">(optional)</span>
+                </label>
+                <input
+                  id="eventDate"
+                  name="eventDate"
+                  type="date"
+                  className="contact-field w-full rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm text-(--portfolio-plum)"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-[#514953]" htmlFor="service">
+                  Service required <span aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="service"
+                  name="service"
+                  required
+                  defaultValue=""
+                  aria-invalid={Boolean(errors.service)}
+                  aria-describedby={errors.service ? "service-error" : undefined}
+                  onChange={() => clearError("service")}
+                  className="contact-field w-full rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm text-(--portfolio-plum)"
+                >
+                  <option value="" disabled>
+                    Select a service
+                  </option>
+                  {serviceOptions.map((service) => (
+                    <option key={service}>{service}</option>
+                  ))}
+                </select>
+                {errors.service && (
+                  <p id="service-error" className="mt-1.5 text-xs text-rose-700">
+                    {errors.service}
+                  </p>
+                )}
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-[#514953]" htmlFor="budget">
+                  Estimated budget <span className="font-normal text-[#857a84]">(optional)</span>
+                </label>
+                <select
+                  id="budget"
+                  name="budget"
+                  defaultValue=""
+                  className="contact-field w-full rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm text-(--portfolio-plum)"
+                >
+                  <option value="">Choose a range (optional)</option>
+                  {budgetOptions.map((budget) => (
+                    <option key={budget}>{budget}</option>
+                  ))}
+                </select>
+                <p className="mt-1.5 text-xs text-[#857a84]">
+                  Example ranges only; we can discuss what fits your project.
+                </p>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-[#514953]" htmlFor="message">
+                  Project details <span aria-hidden="true">*</span>
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  required
+                  minLength={10}
+                  maxLength={4000}
+                  placeholder="Tell me what you have in mind, the moments or visuals you need, and anything else that would help me understand your project."
+                  aria-invalid={Boolean(errors.message)}
+                  aria-describedby={errors.message ? "message-error" : undefined}
+                  onChange={() => clearError("message")}
+                  className="contact-field w-full resize-y rounded-xl border border-[#ded3d8] bg-[#fdfbfa] px-4 py-3 text-sm leading-6 text-(--portfolio-plum) placeholder:text-[#968b94]"
+                />
+                {errors.message && (
+                  <p id="message-error" className="mt-1.5 text-xs text-rose-700">
+                    {errors.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={status === "sending"}
+              className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-(--portfolio-violet) px-6 py-3 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-[#5743c8] disabled:cursor-wait disabled:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-(--portfolio-violet) motion-reduce:transform-none"
             >
-              Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Your name"
-              className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-            />
-          </div>
-          <div>
-            <label
-              className="mb-2 block text-sm font-medium text-slate-700"
-              htmlFor="email"
+              {status === "sending" ? (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white motion-reduce:animate-none"
+                  />{" "}
+                  Sending your enquiry...
+                </>
+              ) : (
+                <>
+                  Let&apos;s Talk About Your Project{" "}
+                  <span
+                    aria-hidden="true"
+                    className="transition-transform duration-200 group-hover:translate-x-1"
+                  >
+                    ↗
+                  </span>
+                </>
+              )}
+            </button>
+            <p
+              className={`min-h-5 text-sm ${status === "error" ? "text-rose-700" : "text-[#665d66]"}`}
+              role="status"
+              aria-live="polite"
             >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-            />
-          </div>
-          <div>
-            <label
-              className="mb-2 block text-sm font-medium text-slate-700"
-              htmlFor="message"
-            >
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              rows={5}
-              placeholder="Tell me about your project"
-              className="w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={status === "sending"}
-            className="inline-flex w-full items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
-          >
-            {status === "sending" ? "Sending..." : "Send Message"}
-          </button>
-          <p className="text-sm text-slate-600" aria-live="polite">
-            {status === "success" && "Thanks, your message has been sent."}
-            {status === "error" && "Something went wrong. Please try again."}
-          </p>
+              {status === "success" &&
+                "Thanks for reaching out! Your enquiry has been submitted successfully."}
+              {status === "error" &&
+                "Your message couldn't be sent right now. Please try again or use the direct contact options."}
+            </p>
+          </ScrollReveal>
         </form>
       </div>
     </section>

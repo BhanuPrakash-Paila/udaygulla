@@ -4,6 +4,10 @@ const inquirySchema = new Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, trim: true, lowercase: true },
+    phone: { type: String, trim: true, maxlength: 40, default: "" },
+    service: { type: String, required: true, trim: true, maxlength: 80 },
+    eventDate: { type: String, trim: true, maxlength: 10, default: "" },
+    budget: { type: String, trim: true, maxlength: 40, default: "" },
     message: { type: String, required: true, trim: true, maxlength: 4000 },
     status: { type: String, enum: ["new", "contacted", "closed"], default: "new" },
   },
@@ -35,6 +39,5 @@ const testimonialSchema = new Schema(
 );
 
 export const Inquiry = models.Inquiry || model("Inquiry", inquirySchema);
-export const PortfolioItem =
-  models.PortfolioItem || model("PortfolioItem", portfolioItemSchema);
+export const PortfolioItem = models.PortfolioItem || model("PortfolioItem", portfolioItemSchema);
 export const Testimonial = models.Testimonial || model("Testimonial", testimonialSchema);

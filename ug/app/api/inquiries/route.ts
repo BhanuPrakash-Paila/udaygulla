@@ -7,6 +7,22 @@ import { Inquiry } from "@/lib/models";
 const inquirySchema = z.object({
   name: z.string().trim().min(2).max(80),
   email: z.string().trim().email().max(254),
+  phone: z.string().trim().max(40).optional(),
+  service: z.enum([
+    "Photography",
+    "Wedding & Engagement",
+    "Birthday & Private Events",
+    "Corporate Events",
+    "Videography & Films",
+    "Photo & Video Editing",
+    "Brand & Product Shoots",
+    "Social Media Content",
+    "Other",
+  ]),
+  eventDate: z.string().trim().max(10).optional(),
+  budget: z
+    .enum(["Not sure yet", "Under ₹5,000", "₹5,000–₹15,000", "₹15,000–₹30,000", "₹30,000+", ""])
+    .optional(),
   message: z.string().trim().min(10).max(4000),
   website: z.string().max(0).optional(),
 });
@@ -33,17 +49,23 @@ export async function POST(request: Request) {
         to: process.env.CONTACT_EMAIL,
         replyTo: payload.email,
         subject: `New portfolio inquiry from ${payload.name}`,
-        text: `${payload.name} (${payload.email})\n\n${payload.message}`,
+        text: [
+          `Name: ${payload.name}`,
+          `Email: ${payload.email}`,
+          `Phone: ${payload.phone || "Not provided"}`,
+          `Service: ${payload.service}`,
+          `Event or project date: ${payload.eventDate || "Not provided"}`,
+          `Estimated budget: ${payload.budget || "Not provided"}`,
+          "",
+          payload.message,
+        ].join("\n"),
       });
     }
 
     return NextResponse.json({ id: inquiry._id.toString() }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Please check the form fields." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Please check the form fields." }, { status: 400 });
     }
 
     console.error("Failed to create inquiry", error);
